@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plutus Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e8d8f7, #f5e6ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            height: 90%;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: scale(1.01);
+        }
+        .sidebar {
+            width: 200px;
+            padding: 20px;
+            background: linear-gradient(180deg, #f9f9f9, #ececec);
+            border-right: 1px solid #e0e0e0;
+            border-radius: 20px 0 0 20px;
+        }
+        .sidebar h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            text-decoration: none;
+            color: #444;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .sidebar a:hover {
+            background: #d9d9d9;
+            color: #000;
+        }
+            .content {
+        flex-grow: 1;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 1fr;
+        grid-template-areas: "balance savings transactions";
+        gap: 20px;
+    }
+        .card {
+            background: linear-gradient(145deg, #ffffff, #f8f8f8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        #balance { grid-area: balance; }
+        #savings { grid-area: savings; }
+        #transactions { grid-area: transactions; }
+        #stats { grid-area: stats; height: 200px; }
+        #goals { grid-area: goals; }
+        #spending { grid-area: spending; }
+        #quicktransfer { grid-area: quicktransfer; }
+        .pro {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #00aaff, #0088cc);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card h3 {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .card p {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: #222;
+        }
+        .card .small {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .progress {
+            width: 100%;
+            background: #eee;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #6b48ff, #884dff);
+            border-radius: 10px;
+            width: 62%;
+            transition: width 0.3s ease;
+        }
+        canvas {
+            max-width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        .transactions-list {
+            margin-top: 15px;
+            background: #f0f0ff;
+            border-radius: 10px;
+            margin-right: 70px;
+            padding: 15px;
+            box-shadow: inset 0 0 8px rgba(107, 72, 255, 0.15);
+    max-height: 250px; /* o el alto que prefieras */
+    overflow-y: auto;
+
+            }
+
+.transactions-list h4 {
+  margin-top: 0;
+  font-size: 1.1em;
+  color: #6b48ff;
+  margin-bottom: 10px;
+}
+
+.transactions-list p {
+  margin: 6px 0;
+  font-size: 1em;
+  color: #333;
+}
+
+.transactions-list .amount {
+  font-weight: 700;
+  color: #884dff;
+}
+
+.finalAmount {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: #4caf50; /* verde bonito */
+  margin-top: 15px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    overflow: auto;
+    padding: 20px 0;
+  }
+
+  .container {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+
+  .sidebar a {
+    margin: 5px 8px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
+
+  .content {
+    width: 100%;
+    padding: 15px 10px 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "balance"
+      "savings"
+      "transactions";
+    gap: 15px;
+  }
+
+  .card {
+    width: 100%;
+  }
+
+  .finalAmount {
+    font-size: 2em;
+  }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Concubernio</h2>
+            <a href="#">🏠 Inicio</a>
+            <a href="Transferencias.html">↻ Transferencias</a>
+            <a href="#">⚙️ Ajustes</a>
+        </div>
+        <div class="content">
+            <div class="card" id="balance">
+                <h3>Tarjeta nª1</h3>
+                <img src="Tarjeta.png" alt="Balance Card" class="card-image" width="270px">
+                <p class="finalAmount">Total: <span style="color: green;">422.900€</span></p>
+                
+                <div class="transactions-list">
+                  <h4>Transacciones Tarjeta 1</h4>
+                  <p>Entrega Cajero: <span style="color: red;">-2.000€</span></p>
+                  <p>Creación de Cajero: <span style="color: red;">-7.000€</span></p>
+                  <p>Gestor: <span style="color: red;">-3.000€</span></p>
+                  <p>Documentación: <span style="color: red;">-300€</span></p>
+                  <p>Entrega Tarjeta nª1: <span style="color: red;">-500€</span></p>
+                  <p>Creación de Tarjeta nª1: <span style="color: red;">-1.300€</span></p>
+                  <p>Gestor: <span style="color: red;">-3.000€</span></p>
+                  <p>Gestor: <span style="color: red;">-15.000€</span></p>
+                  <p>Impuestos: <span style="color: red;">-45.000€</span></p>
+                  <p>Recarga: <span style="color: green;">+500.000€</span></p>
+                </div>
+                <br>
+                <p class="finalAmount">Gastos: <span style="color: red;">-77.100€</span></p>
+
+              </div>
+
+
+              <div class="card" id="savings">
+                <h3>Tarjeta nª2</h3>
+                <img src="Tarjeta2.png" alt="Balance Card" class="card-image" width="270px">
+                <p class="finalAmount">Total: <span style="color: green;">172.900€</span></p>
+                
+                <div class="transactions-list">
+                  <h4>Transacciones Tarjeta 2</h4>
+                  <p>Bizum a Jose: <span style="color: red;">-5.000€</span></p>
+                  <p>Envio Cajero: <span style="color: red;">-2.000€</span></p>
+                  <p>Creación de Cajero: <span style="color: red;">-7.000€</span></p>
+                  <p>Gestor: <span style="color: red;">-3.000€</span></p>
+                  <p>Documentación: <span style="color: red;">-300€</span></p>
+                  <p>Entrega Tarjeta nª2: <span style="color: red;">-500€</span></p>
+                  <p>Creación de Tarjeta nª2: <span style="color: red;">-1.300€</span></p>
+                  <p>Gestor: <span style="color: red;">-3.000€</span></p>
+                  <p>Gestor: <span style="color: red;">-15.000€</span></p>
+                  <p>Impuestos: <span style="color: red;">-25.000€</span></p>
+                  <p>Recarga: <span style="color: green;">+250.000€</span></p>
+                </div>
+
+                <br>
+                <p class="finalAmount">Gastos: <span style="color: red;">-82.100€</span></p>
+              </div>
+          
+   
+</body>
+</html>

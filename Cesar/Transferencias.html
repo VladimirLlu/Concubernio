@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plutus Dashboard - Transferencias</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e8d8f7, #f5e6ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      height: 90%;
+      backdrop-filter: blur(5px);
+      transition: transform 0.3s ease;
+      gap: 40px;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+    .container:hover {
+      transform: scale(1.01);
+    }
+    .sidebar {
+      width: 200px;
+      padding: 20px;
+      background: linear-gradient(180deg, #f9f9f9, #ececec);
+      border-right: 1px solid #e0e0e0;
+      border-radius: 20px 0 0 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      text-decoration: none;
+      color: #444;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .sidebar a:hover {
+      background: #d9d9d9;
+      color: #000;
+    }
+
+    /* Nueva estructura: contenido en 2 columnas */
+    .content {
+      flex-grow: 1;
+      display: flex;
+      gap: 40px;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Columna izquierda: tarjeta + flechas */
+    .left-panel {
+      background: linear-gradient(145deg, #ffffff, #f8f8f8);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      padding: 30px 40px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* Para que el contenido esté arriba */
+      width: 350px;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    .card-container {
+      text-align: center;
+    }
+    .card-container h3 {
+      color: #555;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+    }
+    .card-container img {
+      width: 270px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .finalAmount {
+      font-size: 2.7em;
+      font-weight: 700;
+      color: #4caf50;
+      margin-top: 10px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+      user-select: none;
+    }
+    .nav-arrows {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 15px;
+      user-select: none;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+    .nav-arrows button {
+      background: #6b48ff;
+      border: none;
+      color: white;
+      font-size: 26px;
+      padding: 16px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(107, 72, 255, 0.6);
+      transition: background 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+    }
+    .nav-arrows button:hover {
+      background: #884dff;
+      transform: scale(1.1);
+    }
+
+    /* Columna derecha: formulario */
+    .right-panel {
+      flex-grow: 1;
+      max-width: 600px;
+      background: linear-gradient(145deg, #ffffff, #f8f8f8);
+      border-radius: 15px;
+      padding: 40px 40px 40px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 45px;
+      box-sizing: border-box;
+      height: 100%;
+      overflow-y: auto;
+    }
+    
+    form label {
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 8px;
+    }
+    form input {
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1.5px solid #ccc;
+      font-size: 1.1em;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    form input:focus {
+      outline: none;
+      border-color: #6b48ff;
+      box-shadow: 0 0 8px #884dff;
+    }
+    form button {
+  background: linear-gradient(45deg, #6b48ff, #884dff);
+  color: white;
+  border: none;
+  padding: 10px 20px; /* Menos padding para botón más pequeño */
+  border-radius: 12px;
+  font-size: 1em; /* Fuente más pequeña */
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.3s, box-shadow 0.3s;
+  margin-top: auto;
+  align-self: flex-start; /* Que no ocupe todo el ancho */
+  width: auto; /* Tamaño ajustado al contenido */
+}
+
+form button:hover {
+  background: linear-gradient(45deg, #884dff, #6b48ff);
+  box-shadow: 0 6px 20px rgba(136, 77, 255, 0.7);
+}
+
+ /* Modal fondo */
+ .modal {
+    display: none; /* oculto por defecto */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Mostrar modal con flex */
+  .modal.show {
+    display: flex;
+  }
+  /* Contenido modal */
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 30px 40px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    color: #4caf50;
+  }
+  .modal-content p {
+    margin: 20px 0;
+    font-size: 1.1em;
+    color: #333;
+  }
+  .modal-content button {
+    background: #6b48ff;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 12px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.3s;
+  }
+  .modal-content button:hover {
+    background: #884dff;
+  }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        height: auto;
+        padding: 20px;
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 10px;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .sidebar a {
+        margin: 0 8px;
+        padding: 10px 12px;
+        font-size: 1em;
+      }
+      .content {
+        flex-direction: column;
+        gap: 30px;
+        height: auto;
+      }
+      .left-panel, .right-panel {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+      }
+      .nav-arrows {
+        margin-top: 10px;
+      }
+
+      .modal-content {
+    padding: 20px;
+    max-width: 90%;
+    font-size: 0.9em;
+    border-radius: 10px;
+  }
+
+  .modal-content h2 {
+    font-size: 1.4em;
+  }
+
+  .modal-content p {
+    font-size: 1em;
+  }
+
+  .modal-content button {
+    padding: 8px 20px;
+    font-size: 0.95em;
+  }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>Concubernio</h2>
+      <a href="index.html">🏠 Inicio</a>
+      <a href="#">↻ Transferencias</a>
+      <a href="#">⚙️ Ajustes</a>
+    </div>
+
+    <div class="content">
+      <!-- Izquierda: tarjeta + flechas -->
+      <div class="left-panel">
+        <div class="card-container" id="card-container">
+          <!-- Tarjeta visible se carga aquí -->
+        </div>
+        <div class="nav-arrows">
+          <button id="prev-btn" aria-label="Tarjeta anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button id="next-btn" aria-label="Siguiente tarjeta">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Derecha: formulario -->
+      <div class="right-panel">
+        <form id="transfer-form">
+          <label for="cardNumber">Número de tarjeta</label>
+          <input type="text" id="cardNumber" name="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required pattern="[\d\s]+" />
+
+          <br><br>
+          <label for="cvv">CVV</label>
+          <input type="password" id="cvv" name="cvv" maxlength="4" placeholder="123" required pattern="\d{3,4}" />
+
+          <br><br>
+          <label for="expiry">Fecha de expiración</label>
+          <input type="month" id="expiry" name="expiry" required />
+
+          <br><br>
+          <label for="amount">Cantidad (€)</label>
+          <input type="number" id="amount" name="amount" min="1" step="0.01" placeholder="100.00" required />
+        <br><br>
+
+        <label for="amount">Descripción (€)</label>
+        <input type="text" id="cardNumber" name="cardNumber"/>
+        <br><br>
+
+          <button type="submit">Enviar transferencia</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+  <div class="modal-content">
+    <h2 id="modal-title">Transferencia enviada</h2>
+    <p id="modal-desc">Tu transferencia se ha procesado correctamente.</p>
+    <button id="close-modal">Cerrar</button>
+  </div>
+</div>
+
+  <script>
+    // Datos de las tarjetas
+    const cards = [
+      {
+        id: 'balance',
+        title: 'Tarjeta nª1',
+        img: 'Tarjeta.png',
+        amount: '422.900€',
+      },
+      {
+        id: 'savings',
+        title: 'Tarjeta nª2',
+        img: 'Tarjeta2.png',
+        amount: '172.900€',
+      },
+    ];
+
+    let currentIndex = 0;
+    const cardContainer = document.getElementById('card-container');
+
+    function renderCard(index) {
+      const card = cards[index];
+      cardContainer.innerHTML = `
+        <h3>${card.title}</h3>
+        <img src="${card.img}" alt="${card.title} Image" />
+        <p class="finalAmount">${card.amount}</p>
+      `;
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+      renderCard(currentIndex);
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % cards.length;
+      renderCard(currentIndex);
+    });
+
+    document.getElementById('transfer-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      e.target.reset();
+    });
+
+    // Mostrar la tarjeta inicial
+    renderCard(currentIndex);
+
+
+    const modal = document.getElementById('modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const form = document.getElementById('transfer-form');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Mostrar modal
+    modal.classList.add('show');
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    modal.classList.remove('show');
+    form.reset();
+  });
+
+  // Opcional: cerrar modal al hacer click fuera del contenido
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      form.reset();
+    }
+  });
+  </script>
+</body>
+</html>
